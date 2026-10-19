@@ -53,10 +53,10 @@ flowchart TB
   DOMAIN --> AUDIT
   AUDIT --> DB
   AUDIT --> ANCHOR
-  DB -. "tenant_id predicate on every query" .-> OTHER
+  DB -.->|"tenant_id predicate on every query"| OTHER
   DOMAIN -->|"explicit user action only"| EXTERNAL
-  OSADMIN -. "out of scope: full local control" .-> DB
-  OSADMIN -. "out of scope" .-> ANCHOR
+  OSADMIN -.->|"out of scope: full local control"| DB
+  OSADMIN -.->|"out of scope"| ANCHOR
   DOMAIN --> LOG
 ```
 

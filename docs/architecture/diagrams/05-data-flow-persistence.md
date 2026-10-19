@@ -38,7 +38,7 @@ sequenceDiagram
   UI->>IPC: get_tasks / get_dashboard
   IPC->>UI: fresh tenant-scoped rows
 
-  Note over UI,DB: Reads follow the same authorization gate;<br/>UI never queries SQLite directly.
+  Note over UI,DB: Reads follow the same authorization gate.<br/>The UI never queries SQLite directly.
 
   User->>UI: clicks "Export CSV"
   UI->>DLG: native save dialog (dialog:allow-save)
