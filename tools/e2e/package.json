@@ -1,0 +1,9 @@
+{
+  "name": "@nexus/e2e-harness",
+  "private": true,
+  "type": "module",
+  "description": "NEXUS E2E harness — drives the real Tauri WebView2 over CDP",
+  "scripts": {
+    "e2e": "node nexus-e2e.mjs"
+  }
+}

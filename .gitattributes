@@ -1,0 +1,48 @@
+# =============================================================================
+# NEXUS — ضبط نهايات الأسطر ونوعية الملفات
+# الغاية: الشجرة كُتبت على Windows، وبنية التحقق تعمل على Linux/CI أيضاً.
+# توحيد `eol` يمنع ضجيج CRLF في كل فرق (diff) ويجعل البصمات (hash) حتمية.
+# =============================================================================
+
+# الافتراضي: نصّي مع تطبيع إلى LF، فلا يدخل CRLF إلى المستودع من محرر Windows.
+* text=auto eol=lf
+
+# سكربتات Windows تُشغَّل بـ PowerShell/cmd وتبقى CRLF حتى لا تتعطّل عند التنفيذ المباشر.
+*.ps1   text eol=crlf
+*.psm1  text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# ملفات القفل: نصّية لكن لا تُقارَن سطراً بسطر (`-diff`) لأن توليدها آلي
+# وفرقها يغرق المراجعة، مع تثبيت LF لتفادي اختلاف البصمة بين الأنظمة.
+package-lock.json  text eol=lf -diff
+Cargo.lock         text eol=lf -diff
+*.lock             text eol=lf -diff
+
+# أنواع ثنائية: تُعلَن صراحةً حتى لا يحاول Git تطبيعها أو عرض فرق لها.
+*.ico      binary
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.bmp      binary
+*.webp     binary
+*.tif      binary
+*.tiff     binary
+*.ttf      binary
+*.otf      binary
+*.woff     binary
+*.woff2    binary
+*.pdf      binary
+*.zip      binary
+*.7z       binary
+*.rar      binary
+*.gz       binary
+*.exe      binary
+*.dll      binary
+*.node     binary
+*.db       binary
+*.sqlite   binary
+*.sqlite3  binary
+*.pfx      binary
+*.p12      binary

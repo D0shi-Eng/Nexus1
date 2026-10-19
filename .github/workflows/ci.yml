@@ -1,0 +1,167 @@
+# =============================================================================
+# NEXUS — CI محدود الصلاحيات (جولة الإغلاق النهائية)
+# -----------------------------------------------------------------------------
+# الهدف: بوابات جودة محلية قابلة للتشغيل على GitHub Runner دون أي أثر خارجي.
+# الممنوع صراحةً في هذا الملف: النشر، الرفع، التوقيع، استخدام أسرار إنتاج،
+# تشغيل نماذج AI، تنزيل نماذج، استدعاء APIs مدفوعة، دفع تلقائي، أو نشر Artifacts.
+# الصلاحية الوحيدة: contents: read. لا يوجد أي write token في هذا المسار.
+# =============================================================================
+name: NEXUS CI (read-only)
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+# أقل صلاحيات ممكنة — تصريح صريح بدل الصلاحية الافتراضية للمستودع.
+permissions:
+  contents: read
+
+# إلغاء تشغيل قديم عند دفع جديد على الفرع نفسه.
+concurrency:
+  group: nexus-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: never
+  # لا تلمس الشبكة بعد تثبيت الاعتمادات.
+  CARGO_NET_RETRY: "2"
+
+jobs:
+  javascript:
+    name: JavaScript gates
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout (read-only token)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint (zero warnings)
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+  rust:
+    name: Rust gates
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout (read-only token)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+
+      - name: Format check
+        run: cargo fmt --check
+        working-directory: apps/desktop/src-tauri
+
+      - name: Check (all targets)
+        run: cargo check --all-targets
+        working-directory: apps/desktop/src-tauri
+
+      - name: Unit tests (serial, DPAPI/SQLite surfaces)
+        run: cargo test --lib -- --test-threads=1
+        working-directory: apps/desktop/src-tauri
+
+  security:
+    name: Source hygiene
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout (full history not needed)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      # فحص أسرار بلا أدوات خارجية: أنماط عالية الدقة فقط (مفاتيح معروفة).
+      # لا يطبع أي مطابقة كاملة — يطبع الملف والسطر فقط حتى لا يُسرَّب السر.
+      - name: Secret pattern scan
+        shell: pwsh
+        run: |
+          $patterns = @(
+            'sk-[A-Za-z0-9]{20,}',
+            'sk-ant-[A-Za-z0-9\-_]{20,}',
+            'ghp_[A-Za-z0-9]{30,}',
+            'github_pat_[A-Za-z0-9_]{30,}',
+            'AKIA[0-9A-Z]{16}',
+            '-----BEGIN (RSA|EC|OPENSSH|PGP) PRIVATE KEY-----',
+            'xox[baprs]-[A-Za-z0-9\-]{10,}',
+            'AIza[0-9A-Za-z\-_]{35}',
+            'gsk_[A-Za-z0-9]{20,}',
+            'nvapi-[A-Za-z0-9\-_]{20,}',
+            # مسار ملف تعريف Windows شخصي حقيقي: يُفصح عن اسم حساب الباني (NEXUS-SEC-01).
+            # يستثني الأمثلة التوثيقية العامة (test/user/runner) والمسارات المُقنَّعة
+            # (`<name>` و`...` و`D***`) حتى لا تُنتج البوابة إيجابية كاذبة.
+            '[A-Za-z]:\\Users\\(?!Public\\)(?!test\\|user\\|runner\\)[A-Za-z0-9][A-Za-z0-9._-]{2,}\\'
+          )
+          $tracked = git ls-files
+          $hits = @()
+          foreach ($file in $tracked) {
+            if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { continue }
+            if ($file -match 'package-lock\.json$|Cargo\.lock$') { continue }
+            foreach ($pattern in $patterns) {
+              $matches = Select-String -LiteralPath $file -Pattern $pattern -AllMatches -ErrorAction SilentlyContinue
+              foreach ($match in $matches) {
+                $line = (Get-Content -LiteralPath $file)[$match.LineNumber - 1]
+                # استثناءات معلنة: قيم CANARY الاصطناعية، والأمثلة التوثيقية الموسومة
+                # صراحةً بـALLOWED_GENERIC/ALLOWED_PLACEHOLDER في تقارير المراجعة.
+                if ($line -match 'CANARY|ALLOWED_GENERIC|ALLOWED_PLACEHOLDER') { continue }
+                # PowerShell: `$file:` غير صالح — يجب حصر الاسم بأقواس معقوفة.
+                $hits += "${file}:$($match.LineNumber)"
+              }
+            }
+          }
+          if ($hits.Count -gt 0) {
+            Write-Host "Potential secret patterns found (paths only):"
+            $hits | Sort-Object -Unique | ForEach-Object { Write-Host "  $_" }
+            exit 1
+          }
+          Write-Host "No high-confidence secret patterns found in tracked files."
+
+      # منع رفع أي مخرج بناء أو قاعدة بيانات أو ملف تنفيذي في أي commit.
+      - name: Forbidden artifact check
+        shell: pwsh
+        run: |
+          $forbidden = git ls-files | Where-Object {
+            $_ -match '\.(exe|msi|nsis|dll|db|db-wal|db-shm|pdb|pfx|p12|pem|key)$' -or
+            $_ -match '^audit/uat-' -or
+            $_ -match '^node_modules/' -or
+            $_ -match '/target/'
+          }
+          if ($forbidden) {
+            Write-Host "Forbidden build/data artifacts are tracked:"
+            $forbidden | ForEach-Object { Write-Host "  $_" }
+            exit 1
+          }
+          Write-Host "No forbidden artifacts tracked."

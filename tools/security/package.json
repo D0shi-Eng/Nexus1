@@ -1,0 +1,9 @@
+{
+  "name": "@nexus/security-tools",
+  "private": true,
+  "type": "module",
+  "description": "NEXUS security tooling — publishable-snapshot secret scanning",
+  "scripts": {
+    "scan": "node secret-scan.mjs"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "com.nexus.obligationos.uatharness",
+  "productName": "NEXUS UAT Harness",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "NEXUS — UAT HARNESS (ISOLATED)",
+        "width": 1360,
+        "height": 880,
+        "minWidth": 980,
+        "minHeight": 640,
+        "resizable": true,
+        "fullscreen": false,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port=9444 --remote-allow-origins=http://127.0.0.1:9444 --force-renderer-accessibility"
+      }
+    ]
+  },
+  "bundle": {
+    "active": false
+  }
+}

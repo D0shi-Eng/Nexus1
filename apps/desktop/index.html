@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: asset:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' ipc: http://ipc.localhost;"
+    />
+    <title>NEXUS</title>
+    <!-- إقلاع الثيم قبل أول رسم: ملف خارجي لأن CSP يمنع script مضمّناً. -->
+    <script src="/theme-boot.js"></script>
+  </head>
+  <body>
+    <noscript>يتطلب NEXUS تفعيل JavaScript لتشغيل واجهة سطح المكتب.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "com.nexus.obligationos.firstrunharness",
+  "productName": "NEXUS First-Run Harness",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "NEXUS — FIRST RUN HARNESS (ISOLATED)",
+        "width": 1360,
+        "height": 880,
+        "minWidth": 980,
+        "minHeight": 640,
+        "resizable": true,
+        "fullscreen": false,
+        "additionalBrowserArgs": "--force-renderer-accessibility"
+      }
+    ]
+  },
+  "bundle": {
+    "active": false
+  }
+}

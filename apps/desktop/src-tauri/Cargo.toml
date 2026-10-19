@@ -1,0 +1,48 @@
+[package]
+name = "nexus_desktop"
+version = "0.1.0"
+description = "NEXUS local-first business obligation operating system"
+license = "Apache-2.0"
+authors = ["NEXUS Engineering"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "nexus_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+argon2 = { version = "0.5", features = ["std", "rand"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+rusqlite = { version = "0.33", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+# تحليل عناوين WHATWG معياري — يمنع الاعتماد على تحليل يدوي في سياسة الوجهة الشبكية.
+url = { version = "2.5", default-features = false }
+# ===== TLS (المزودون السحابيون — 0023) =====
+# كان ureq مبنياً بـ default-features = false بلا أي طبقة TLS فتعذّر HTTPS إطلاقاً.
+# الميزات المطلوبة صراحةً (مع إبقاء default-features = false حتى لا تُسحب ميزات غير مقصودة):
+#   rustls  → محرّك rustls مع ring ومخزن جذور webpki المثبّت.
+#   gzip    → فك ترميز الاستجابات المضغوطة قبل تطبيق حدّ حجم الجسم.
+#   json    → قراءة JSON مقيدة مع حدّ حجم (لا نعتمد عليها وحدها؛ نستعمل serde_json صراحةً).
+ureq = { version = "=3.2.1", default-features = false, features = [
+    "rustls",
+    "gzip",
+    "json",
+] }
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+thiserror = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# حماية أسرار الموفرين بنظام التشغيل (DPAPI) — بلا أي تخزين نصي في القاعدة أو السجلات.
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.60", features = [
+    "Win32_Foundation",
+    "Win32_Security_Cryptography",
+    "Win32_System_Memory",
+] }

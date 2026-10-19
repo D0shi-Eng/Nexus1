@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  NEXUS application mark - original geometry, hand-specified in a 256x256 space.
+  Concept: a hexagonal governed container (bounded, auditable cell) holding one
+  unbroken ring that links three nodes (connected intelligence under one
+  circuit) around a deliberately empty core where human approval sits.
+  No third-party mark is copied, traced or approximated; no raster is embedded.
+  Generated deterministically by assets/branding/build/nexus_mark.py so that the
+  vector and every approved raster share one geometry source.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"
+     role="img" aria-label="NEXUS">
+  <defs>
+    <linearGradient id="nxPlate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#294568"/>
+      <stop offset="1" stop-color="#101D30"/>
+    </linearGradient>
+    <linearGradient id="nxGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F0C56F"/>
+      <stop offset="1" stop-color="#E0AD4E"/>
+    </linearGradient>
+  </defs>
+  <path d="M116 22.928A24 24 0 0 1 140 22.928L212.995 65.072A24 24 0 0 1 224.995 85.856L224.995 170.144A24 24 0 0 1 212.995 190.928L140 233.072A24 24 0 0 1 116 233.072L43.005 190.928A24 24 0 0 1 31.005 170.144L31.005 85.856A24 24 0 0 1 43.005 65.072Z" fill="url(#nxPlate)"/>
+  <path d="M116 22.928A24 24 0 0 1 140 22.928L212.995 65.072A24 24 0 0 1 224.995 85.856L224.995 170.144A24 24 0 0 1 212.995 190.928L140 233.072A24 24 0 0 1 116 233.072L43.005 190.928A24 24 0 0 1 31.005 170.144L31.005 85.856A24 24 0 0 1 43.005 65.072Z M117.75 25.959A20.5 20.5 0 0 1 138.25 25.959L211.245 68.103A20.5 20.5 0 0 1 221.495 85.856L221.495 170.144A20.5 20.5 0 0 1 211.245 187.897L138.25 230.041A20.5 20.5 0 0 1 117.75 230.041L44.755 187.897A20.5 20.5 0 0 1 34.505 170.144L34.505 85.856A20.5 20.5 0 0 1 44.755 68.103Z" fill="#537BA3" fill-opacity="0.80" fill-rule="evenodd"/>
+  <g fill="url(#nxGold)">
+    <path d="M95.957 81.5A37 37 0 0 1 160.043 81.5L184.292 123.5A37 37 0 0 1 152.249 179L103.751 179A37 37 0 0 1 71.708 123.5Z M118.474 94.5A11 11 0 0 1 137.526 94.5L161.775 136.5A11 11 0 0 1 152.249 153L103.751 153A11 11 0 0 1 94.225 136.5Z" fill-rule="evenodd"/>
+    <circle cx="128" cy="76" r="23"/>
+    <circle cx="173.033" cy="154" r="23"/>
+    <circle cx="82.967" cy="154" r="23"/>
+  </g>
+</svg>
